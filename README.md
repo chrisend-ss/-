@@ -55,7 +55,7 @@ https://music.163.com/#/playlist?id=123456789
 | Secret | 内容 |
 | --- | --- |
 | `NETEASE_COOKIE` | 网易云网页版完整 Cookie |
-| `NETEASE_PLAYLIST_ID` | 目标网易云歌单 ID |
+| `NETEASE_PLAYLIST_ID` | 可选；默认已设为 `18422386676` |
 
 这个仓库即使是公开仓库，Actions Secrets 也不会显示在代码里。
 
@@ -73,7 +73,7 @@ https://music.163.com/#/playlist?id=123456789
 python -m pip install -r requirements.txt
 
 export NETEASE_COOKIE='你的网易云Cookie'
-export NETEASE_PLAYLIST_ID='你的歌单ID'
+export NETEASE_PLAYLIST_ID='18422386676'
 export TOP_N=50
 
 python sync.py
@@ -83,7 +83,7 @@ Windows PowerShell：
 
 ```powershell
 $env:NETEASE_COOKIE="你的网易云Cookie"
-$env:NETEASE_PLAYLIST_ID="你的歌单ID"
+$env:NETEASE_PLAYLIST_ID="18422386676"
 $env:TOP_N="50"
 python sync.py
 ```
@@ -93,7 +93,7 @@ python sync.py
 | 变量 | 默认值 | 说明 |
 | --- | ---: | --- |
 | `NETEASE_COOKIE` | 必填 | 网易云登录 Cookie |
-| `NETEASE_PLAYLIST_ID` | 必填 | 写入的歌单 ID |
+| `NETEASE_PLAYLIST_ID` | `18422386676` | 写入的歌单 ID；可覆盖 |
 | `TOP_N` | `50` | 抖音榜单取前多少首 |
 | `MATCH_THRESHOLD` | `0.68` | 匹配阈值，越高越保守 |
 | `DRY_RUN` | `false` | true 时只匹配，不真正加歌 |
