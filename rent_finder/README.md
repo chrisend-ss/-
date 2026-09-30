@@ -1,48 +1,100 @@
 # 杭州租房筛选器（rent-finder）
 
-这个分支独立承载租房工具，不改动网易云抓取功能的 main 分支。
+独立分支，不改网易云抓取功能的 main。
 
-## 已写入的上游项目
+## 目标条件
 
-- LianjiaRentSpider-Visualization
-  - 来源：https://github.com/ljqdemi/LianjiaRentSpider-Visualization
-  - 用途：链家租房抓取、SQLite 存储、数据分析/可视化
-- BeiKeZuFangSpider
-  - 来源：https://github.com/sunhailin-Leo/BeiKeZuFangSpider
-  - 用途：Scrapy 抓取贝壳租房、CSV/MongoDB 输出
-- rentHouseSpider
-  - 来源：https://github.com/zonezoen/rentHouseSpider
-  - 用途：requests + BeautifulSoup 抓取、MongoDB、基础分析
+- 工作地点：杭州地铁 2 号线「钱江世纪城」
+- 方向：只往杭州主城区方向
+- 站点顺序：钱江路 → 庆春广场 → 庆菱路 → 建国北路 → 中河北路 → 凤起路 → 武林门
+- 整租优先
+- 面积 >= 70㎡
+- 目标租金约 3000 元/月
+- 硬上限 3300 元/月
+- 优先 2 号线直达
+- 已知地铁步行距离时要求 <= 1000m
+- 自动排除合租、办公室、商铺、写字楼，并去重
 
-三者以 git submodule 方式固定版本，避免直接复制第三方代码导致来源和版本混乱。
+## 三个上游项目
 
-## 当前筛选条件
+1. **LianjiaRentSpider-Visualization**
+   - 链家 HTML 抓取、SQLite、数据分析
+2. **BeiKeZuFangSpider**
+   - Scrapy 贝壳抓取、CSV/MongoDB
+3. **rentHouseSpider**
+   - requests + BeautifulSoup、MongoDB、基础分析
 
-- 工作地点：杭州地铁 2 号线 钱江世纪城站
-- 方向：只看钱江世纪城往杭州主城区方向
-- 优先站点：钱江路、庆春广场、庆菱路、建国北路、中河北路、凤起路、武林门
-- 租赁方式：整租优先
-- 面积：>= 70㎡
-- 目标租金：约 3000 元/月
-- 硬上限：3300 元/月
-- 通勤：优先 2 号线直达
-- 地铁步行：优先 <= 1000m
-- 排除：合租、办公/商铺、明显引流低价、面积信息异常、重复房源
+三者保留为 git submodule，当前主程序只提取可复用思路和字段，不直接依赖老环境运行。
 
-## 使用
+## 现在已经能做什么
 
-克隆本分支并拉取上游：
+主入口：`rent_finder/collect.py`
+
+它可以：
+
+1. 抓取你配置的链家地铁站租房页面；
+2. 自动翻页；
+3. 把三个来源统一成同一字段；
+4. 按你的价格、面积、方向、整租条件过滤；
+5. URL/房源特征去重；
+6. 按「面积 + 租金接近3000 + 站点距离 + 步行距离」排序；
+7. 输出 JSON 和 Excel 可直接打开的 UTF-8 BOM CSV。
+
+## 第一次使用
 
 ```bash
 git clone -b rent-finder --recurse-submodules https://github.com/chrisend-ss/-.git
+cd -
+python -m pip install -r requirements-rent.txt
 ```
 
-筛选器接收标准化 JSON 房源列表：
+复制来源模板：
 
 ```bash
-python rent_finder/filter.py input.json
+cp rent_finder/sources.example.json rent_finder/sources.json
 ```
 
-后续可以分别给三个上游写 adapter，把抓取结果统一转换为同一字段，再交给 filter.py 去重、筛选、排序。
+然后把链家对应的「地铁租房」页面链接粘进 `sources.json`。
 
-> 说明：三个上游项目年代和站点结构不同，网页结构也可能已经变化。这里先保留可复用抓取思路与源码版本，不承诺旧爬虫无需修改即可直接跑通当前网站。
+运行：
+
+```bash
+python -m rent_finder.collect --sources rent_finder/sources.json
+```
+
+结果会生成：
+
+```text
+rent_finder/output/all.json
+rent_finder/output/matches.json
+rent_finder/output/matches.csv
+```
+
+其中 **matches.csv 就是最终候选房源清单**。
+
+## 合并旧爬虫数据
+
+贝壳旧项目导出的 CSV：
+
+```bash
+python -m rent_finder.collect \
+  --sources rent_finder/sources.json \
+  --beike-csv ExportData/export_xxx.csv
+```
+
+rentHouseSpider 如果导出为 JSON：
+
+```bash
+python -m rent_finder.collect \
+  --sources rent_finder/sources.json \
+  --fang-json houses.json
+```
+
+也可以两种同时加。
+
+## 说明
+
+- 不绕验证码、不绕登录风控、不做高频攻击式请求。
+- 默认每个页面请求间隔 2 秒、每个站只抓前 3 页。
+- 网站 DOM 变化时只需要更新对应 adapter，不需要改筛选器。
+- 下一阶段：自动生成站点 URL、GitHub Actions 定时运行、新房源增量通知。
