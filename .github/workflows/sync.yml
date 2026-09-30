@@ -1,0 +1,83 @@
+name: 抖音热歌同步到网易云
+
+on:
+  workflow_dispatch:
+    inputs:
+      top_n:
+        description: "抓取抖音热歌榜前多少首"
+        required: false
+        default: "50"
+        type: choice
+        options:
+          - "10"
+          - "30"
+          - "50"
+          - "100"
+      dry_run:
+        description: "只测试匹配，不真正加入网易云歌单"
+        required: false
+        default: false
+        type: boolean
+  schedule:
+    # GitHub Actions 使用 UTC：04:00 / 10:00 UTC = 北京/新加坡 12:00 / 18:00
+    - cron: "0 4,10 * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: douyin-netease-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+
+      - name: Check configuration
+        env:
+          NETEASE_COOKIE: ${{ secrets.NETEASE_COOKIE }}
+          NETEASE_PLAYLIST_ID: ${{ secrets.NETEASE_PLAYLIST_ID }}
+        run: |
+          if [ -z "$NETEASE_COOKIE" ]; then
+            echo "::error::缺少 GitHub Secret: NETEASE_COOKIE"
+            exit 1
+          fi
+          if [ -z "$NETEASE_PLAYLIST_ID" ]; then
+            echo "::error::缺少 GitHub Secret: NETEASE_PLAYLIST_ID"
+            exit 1
+          fi
+
+      - name: Sync Douyin hot songs to NetEase
+        env:
+          NETEASE_COOKIE: ${{ secrets.NETEASE_COOKIE }}
+          NETEASE_PLAYLIST_ID: ${{ secrets.NETEASE_PLAYLIST_ID }}
+          TOP_N: ${{ github.event.inputs.top_n || '50' }}
+          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run || 'false' }}
+          MATCH_THRESHOLD: "0.68"
+          SYNC_MODE: "append"
+        run: python sync.py
+
+      - name: Upload sync report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sync-report-${{ github.run_number }}
+          path: |
+            sync_report.json
+            sync_report.md
+          if-no-files-found: ignore
+          retention-days: 14
