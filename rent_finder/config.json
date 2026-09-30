@@ -1,0 +1,32 @@
+{
+  "city": "杭州",
+  "work_station": "钱江世纪城",
+  "line": "2号线",
+  "direction": "toward_city_center",
+  "stations_priority": [
+    "钱江路",
+    "庆春广场",
+    "庆菱路",
+    "建国北路",
+    "中河北路",
+    "凤起路",
+    "武林门"
+  ],
+  "rent": {
+    "target": 3000,
+    "max": 3300
+  },
+  "area_sqm": {
+    "min": 70
+  },
+  "whole_rent_preferred": true,
+  "direct_line_preferred": true,
+  "max_walk_to_metro_m": 1000,
+  "exclude_keywords": [
+    "合租",
+    "工位",
+    "办公室",
+    "商铺",
+    "写字楼"
+  ]
+}

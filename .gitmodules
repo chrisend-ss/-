@@ -1,0 +1,9 @@
+[submodule "rent_finder/upstreams/LianjiaRentSpider-Visualization"]
+	path = rent_finder/upstreams/LianjiaRentSpider-Visualization
+	url = https://github.com/ljqdemi/LianjiaRentSpider-Visualization.git
+[submodule "rent_finder/upstreams/BeiKeZuFangSpider"]
+	path = rent_finder/upstreams/BeiKeZuFangSpider
+	url = https://github.com/sunhailin-Leo/BeiKeZuFangSpider.git
+[submodule "rent_finder/upstreams/rentHouseSpider"]
+	path = rent_finder/upstreams/rentHouseSpider
+	url = https://github.com/zonezoen/rentHouseSpider.git
