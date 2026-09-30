@@ -528,7 +528,7 @@ def write_report(report: dict[str, Any]) -> None:
 
 def main() -> int:
     cookie = os.getenv("NETEASE_COOKIE", "").strip()
-    playlist_id = os.getenv("NETEASE_PLAYLIST_ID", "").strip()
+    playlist_id = os.getenv("NETEASE_PLAYLIST_ID", "18422386676").strip()
     top_n = clamp_int(os.getenv("TOP_N"), 50, 1, 100)
     threshold = clamp_float(os.getenv("MATCH_THRESHOLD"), 0.68, 0.50, 0.95)
     dry_run = env_bool("DRY_RUN", False)
