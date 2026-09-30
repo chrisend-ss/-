@@ -50,21 +50,17 @@ jobs:
       - name: Check configuration
         env:
           NETEASE_COOKIE: ${{ secrets.NETEASE_COOKIE }}
-          NETEASE_PLAYLIST_ID: ${{ secrets.NETEASE_PLAYLIST_ID }}
+          NETEASE_PLAYLIST_ID: "18422386676"
         run: |
           if [ -z "$NETEASE_COOKIE" ]; then
             echo "::error::缺少 GitHub Secret: NETEASE_COOKIE"
-            exit 1
-          fi
-          if [ -z "$NETEASE_PLAYLIST_ID" ]; then
-            echo "::error::缺少 GitHub Secret: NETEASE_PLAYLIST_ID"
             exit 1
           fi
 
       - name: Sync Douyin hot songs to NetEase
         env:
           NETEASE_COOKIE: ${{ secrets.NETEASE_COOKIE }}
-          NETEASE_PLAYLIST_ID: ${{ secrets.NETEASE_PLAYLIST_ID }}
+          NETEASE_PLAYLIST_ID: "18422386676"
           TOP_N: ${{ github.event.inputs.top_n || '50' }}
           DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.dry_run || 'false' }}
           MATCH_THRESHOLD: "0.68"
